@@ -16,3 +16,4 @@ key.properties
 !/app/libs/.gitkeep
 
 /app/.cxx
+/.kotlin/

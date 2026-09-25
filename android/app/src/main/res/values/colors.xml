@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <color name="belderchin_sand">#F2DDBD</color>
+    <color name="belderchin_terracotta">#CA4F12</color>
+    <color name="belderchin_night">#1F1B16</color>
 </resources>
