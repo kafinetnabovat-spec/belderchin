@@ -1,9 +1,11 @@
 {
-  "version": 1,
-  "issued_at": "2026-09-24T17:00:00Z",
-  "expires_at": "2027-03-24T17:00:00Z",
+  "version": 2,
+  "issued_at": "2026-09-25T20:05:00Z",
+  "expires_at": "2027-03-25T20:05:00Z",
   "min_app_version": "1.0.0",
-  "mirrors": [],
+  "mirrors": [
+    "https://belderchin.pages.dev/sources.signed.json"
+  ],
   "health_check": {
     "urls": [
       "http://cp.cloudflare.com/generate_204",
@@ -34,7 +36,14 @@
       8854, 8886
     ]
   },
-  "workers": [],
+  "workers": [
+    {
+      "id": "zeus-belderchin",
+      "name": "Zeus - Belderchin",
+      "url": "https://5kzcn2e4uuos.44ybmvi8nitmrtvgl5-c-zcunfbav.workers.dev/sub/belderchin",
+      "weight": 100
+    }
+  ],
   "backup": [],
-  "notes": "Initial list. Add Cloudflare Workers subscriptions under 'workers' and last-resort entries under 'backup', then re-sign with tools/sources/belderchin_sources.py."
+  "notes": "v2: Added Zeus panel subscription for Belderchin"
 }
