@@ -1,0 +1,53 @@
+{
+  "version": 12,
+  "issued_at": "2026-10-01T08:00:00Z",
+  "expires_at": "2027-01-01T08:00:00Z",
+  "min_app_version": "1.0.0",
+  "mirrors": [
+    "https://example-extra-mirror.pages.dev/sources.signed.json"
+  ],
+  "health_check": {
+    "urls": [
+      "http://cp.cloudflare.com/generate_204",
+      "http://connectivitycheck.gstatic.com/generate_204",
+      "http://www.msftconnecttest.com/connecttest.txt",
+      "http://detectportal.firefox.com/success.txt"
+    ],
+    "min_success": 2,
+    "timeout_ms": 6000
+  },
+  "warp": {
+    "enabled": true,
+    "endpoints": ["162.159.192.0/24", "162.159.195.0/24", "188.114.96.0/24", "188.114.97.0/24"],
+    "ports": [2408, 500, 1701, 4500, 854, 859, 864, 878, 880, 890, 891, 894, 903, 908, 928, 934, 939, 942]
+  },
+  "workers": [
+    {
+      "id": "w-primary",
+      "name": "Worker primary",
+      "url": "https://example-name.example-account.workers.dev/sub/EXAMPLE-TOKEN",
+      "weight": 10
+    },
+    {
+      "id": "w-secondary",
+      "name": "Worker secondary (custom domain)",
+      "url": "https://sub.example.com/sub/EXAMPLE-TOKEN",
+      "weight": 5
+    }
+  ],
+  "backup": [
+    {
+      "id": "b-mirror-sub",
+      "name": "Backup subscription",
+      "url": "https://backup.example.org/sub.txt",
+      "weight": 2
+    },
+    {
+      "id": "b-inline",
+      "name": "Inline last resort",
+      "content": "vless://00000000-0000-0000-0000-000000000000@example.org:443?encryption=none&security=tls&type=ws&host=example.org&path=%2Fws#example",
+      "weight": 1
+    }
+  ],
+  "notes": "Example only. Every URL and UUID here is a placeholder."
+}
