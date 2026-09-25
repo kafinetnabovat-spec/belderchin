@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "Hiddify",
+    "appTitle": "Belderchin",
     "start": "Comenzar",
     "version": "Versión",
     "ok": "Aceptar",
@@ -88,7 +88,7 @@
   "intro": {
     "banner": "Todo lo que necesitas para un internet sin restricciones",
     "termsAndPolicyCaution(rich)": "Al continuar, aceptas los ${tap(@:pages.about.termsAndConditions)}",
-    "info(rich)": "Hecho con ❤️ por Hiddify - ${tap_source(Código Abierto)} (${tap_license(Licencia)})"
+    "info(rich)": "Hecho con ❤️ por Belderchin - ${tap_source(Código Abierto)} (${tap_license(Licencia)})"
   },
   "pages": {
     "home": {
@@ -562,7 +562,7 @@
       "msg": "Para empezar, añade un perfil de conexión que incluya los detalles de tu conexión VPN.\n\n¿Aún no tienes un servidor VPN? No te preocupes, sigue el tutorial a continuación para configurar uno rápidamente y de forma gratuita.",
       "helpBtn": {
         "label": "Muéstrame cómo",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://github.com/kafinetnabovat-spec/belderchin#readme"
       }
     },
     "unknownDomainsWarning": {

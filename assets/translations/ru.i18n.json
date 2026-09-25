@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "Hiddify",
+    "appTitle": "Belderchin",
     "start": "Начать",
     "version": "Версия",
     "ok": "OK",
@@ -92,7 +92,7 @@
   "intro": {
     "banner": "Все, что вам нужно для интернета без ограничений",
     "termsAndPolicyCaution(rich)": "Продолжая, вы соглашаетесь с ${tap(@:pages.about.termsAndConditions)}",
-    "info(rich)": "Сделано с ❤️ Hiddify - ${tap_source(Открытый исходный код)} (${tap_license(Лицензия)})"
+    "info(rich)": "Сделано с ❤️ Belderchin - ${tap_source(Открытый исходный код)} (${tap_license(Лицензия)})"
   },
   "pages": {
     "home": {
@@ -566,7 +566,7 @@
       "msg": "Давайте начнем с добавления профиля подключения, который содержит данные вашего VPN-соединения.\n\nЕще нет VPN-сервера? Не беспокойтесь — просто следуйте руководству ниже, чтобы быстро и бесплатно настроить его.",
       "helpBtn": {
         "label": "Покажите, как",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://github.com/kafinetnabovat-spec/belderchin#readme"
       }
     },
     "unknownDomainsWarning": {

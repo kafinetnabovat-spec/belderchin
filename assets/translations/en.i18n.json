@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "Hiddify",
+    "appTitle": "Belderchin",
     "start": "Start",
     "version": "Version",
     "ok": "OK",
@@ -88,7 +88,7 @@
   "intro": {
     "banner": "All you need for an unrestricted internet",
     "termsAndPolicyCaution(rich)": "By continuing you agree to ${tap(@:pages.about.termsAndConditions)}",
-    "info(rich)": "Made with ❤️ by Hiddify - ${tap_source(Open Source)} (${tap_license(License)})"
+    "info(rich)": "Belderchin is free & open source, based on Hiddify - ${tap_source(Source)} (${tap_license(License)})"
   },
   "pages": {
     "home": {
@@ -178,9 +178,11 @@
       "checkForUpdate": "Check for update",
       "openWorkingDir": "Open working directory",
       "sourceCode": "Source code",
-      "telegramChannel": "Telegram channel",
-      "termsAndConditions": "Terms and conditions",
-      "privacyPolicy": "Privacy policy"
+      "telegramChannel": "GitHub repository",
+      "termsAndConditions": "License (Hiddify Extended GPLv3)",
+      "privacyPolicy": "Privacy",
+      "basedOnHiddify": "Based on Hiddify (upstream project)",
+      "upstreamLicense": "Upstream Hiddify license"
     },
     "settings": {
       "title": "Settings",
@@ -563,7 +565,7 @@
       "msg": "Let's get started by adding a connection profile that includes your VPN connection details.\n\nDon’t have a VPN server yet? No worries—just follow the tutorial below to set one up quickly and for free.",
       "helpBtn": {
         "label": "Show me how",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://github.com/kafinetnabovat-spec/belderchin#readme"
       }
     },
     "unknownDomainsWarning": {

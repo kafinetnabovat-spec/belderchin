@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "هیدیفای",
+    "appTitle": "بلدرچین",
     "start": "شروع",
     "version": "نسخه",
     "ok": "باشه",
@@ -88,7 +88,7 @@
   "intro": {
     "banner": "هرآنچه برای اینترنت بدون محدودیت نیاز دارید",
     "termsAndPolicyCaution(rich)": "با ادامه، شما با ${tap(@:pages.about.termsAndConditions)} موافقت می‌کنید",
-    "info(rich)": "ساخته شده با ❤️ توسط هیدیفای - ${tap_source(متن‌باز)} (${tap_license(مجوز)})"
+    "info(rich)": "بلدرچین آزاد و متن‌باز است و بر پایهٔ Hiddify ساخته شده — ${tap_source(کد منبع)} (${tap_license(مجوز)})"
   },
   "pages": {
     "home": {
@@ -177,9 +177,11 @@
       "checkForUpdate": "بررسی برای به‌روزرسانی",
       "openWorkingDir": "باز کردن پوشه کاری",
       "sourceCode": "کد منبع",
-      "telegramChannel": "کانال تلگرام",
-      "termsAndConditions": "شرایط و ضوابط",
-      "privacyPolicy": "سیاست حفظ حریم خصوصی"
+      "telegramChannel": "مخزن گیت‌هاب",
+      "termsAndConditions": "مجوز (Hiddify Extended GPLv3)",
+      "privacyPolicy": "حریم خصوصی",
+      "basedOnHiddify": "بر پایهٔ Hiddify (پروژهٔ اصلی)",
+      "upstreamLicense": "مجوز پروژهٔ اصلی Hiddify"
     },
     "settings": {
       "title": "تنظیمات",
@@ -562,7 +564,7 @@
       "msg": "بیایید با افزودن یک پروفایل اتصال که شامل جزئیات اتصال VPN شماست، شروع کنیم.\n\nهنوز سرور VPN ندارید؟ نگران نباشید، با دنبال کردن راهنمای زیر می‌توانید به سرعت و رایگان یکی برای خودتان بسازید.",
       "helpBtn": {
         "label": "راهنمایی کن",
-        "url": "https://hiddify.com/manager/"
+        "url": "https://github.com/kafinetnabovat-spec/belderchin#readme"
       }
     },
     "unknownDomainsWarning": {
