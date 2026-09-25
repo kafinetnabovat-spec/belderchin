@@ -76,24 +76,34 @@ def http(method: str, url: str, token: str | None = None, data=None, headers=Non
 
 
 # ------------------------------------------------------------------ device flow
-def device_flow(scope: str) -> str:
+FORM = {"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"}
+
+
+def request_device_code(scope: str) -> dict:
     status, d = http(
         "POST",
         "https://github.com/login/device/code",
         data={"client_id": GH_CLI_CLIENT_ID, "scope": scope},
-        headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+        headers=FORM,
     )
     if status != 200 or "device_code" not in d:
         raise SystemExit(f"device code request failed: {status} {d}")
-    interval = int(d.get("interval", 5))
-    deadline = time.time() + int(d.get("expires_in", 900))
+    d["expires_at"] = time.time() + int(d.get("expires_in", 900))
+    return d
+
+
+def announce_code(d: dict) -> None:
     print("=" * 64, flush=True)
     print(f"USER_CODE: {d['user_code']}", flush=True)
     print(f"VERIFY_URL: {d['verification_uri']}", flush=True)
-    print(f"EXPIRES_IN_SECONDS: {int(deadline - time.time())}", flush=True)
+    print(f"EXPIRES_IN_SECONDS: {int(d['expires_at'] - time.time())}", flush=True)
     print("=" * 64, flush=True)
-    while time.time() < deadline:
-        time.sleep(interval)
+
+
+def poll_token(d: dict) -> str:
+    """Exchange an authorized device code for a token (kept in memory only)."""
+    interval = int(d.get("interval", 5))
+    while time.time() < d["expires_at"]:
         status, t = http(
             "POST",
             "https://github.com/login/oauth/access_token",
@@ -102,19 +112,43 @@ def device_flow(scope: str) -> str:
                 "device_code": d["device_code"],
                 "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
             },
-            headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+            headers=FORM,
         )
-        err = t.get("error")
         if "access_token" in t:
             log("authorized (token kept in memory only)")
             return t["access_token"]
-        if err == "authorization_pending":
-            continue
+        err = t.get("error")
         if err == "slow_down":
             interval += 5
-            continue
-        raise SystemExit(f"device flow ended: {err or t}")
+        elif err != "authorization_pending":
+            raise SystemExit(f"device flow ended: {err or t}")
+        time.sleep(interval)
     raise SystemExit("device code expired before it was entered")
+
+
+def obtain_token(args, scope: str = "repo workflow") -> str:
+    """Two-step mode (for environments that cannot keep a process alive while
+    the maintainer authorizes): `--issue-code` stores the pending device code in
+    `--device-code-file`; a later run picks it up and exchanges it."""
+    path = args.device_code_file
+    if args.issue_code:
+        d = request_device_code(scope)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as fh:
+            json.dump(d, fh)
+        announce_code(d)
+        raise SystemExit(0)
+    if path and os.path.exists(path):
+        with open(path, encoding="utf-8") as fh:
+            d = json.load(fh)
+        os.remove(path)
+        if time.time() > d["expires_at"]:
+            raise SystemExit("stored device code has expired; run again with --issue-code")
+        log("exchanging the stored device code")
+        return poll_token(d)
+    d = request_device_code(scope)
+    announce_code(d)
+    return poll_token(d)
 
 
 # -------------------------------------------------------------------------- git
@@ -340,13 +374,17 @@ def main() -> None:
     ap.add_argument("--command-file", default="/tmp/belderchin-cmd")
     ap.add_argument("--logs-dir", default="/tmp/belderchin-logs")
     ap.add_argument("--stay-alive-hours", type=float, default=6)
+    ap.add_argument("--issue-code", action="store_true", help="only request a device code, store it, print it and exit")
+    ap.add_argument("--device-code-file", default=os.path.expanduser("~/.belderchin-device-code.json"))
     args = ap.parse_args()
 
+    if args.issue_code:
+        obtain_token(args)
     scratch = None
     if not args.skip_push:
         scratch = prepare_scratch(args)  # network work that needs no token
 
-    token = device_flow("repo workflow")
+    token = obtain_token(args)
     status, me = http("GET", f"{API}/user", token)
     log(f"authenticated as {me.get('login')} ({status})")
     status, repo = http("GET", f"{API}/repos/{args.repo}", token)
