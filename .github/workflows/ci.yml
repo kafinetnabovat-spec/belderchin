@@ -1,34 +1,42 @@
 name: CI
+
 on:
-  pull_request:
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'test.configs/**'
-      - '.vscode/'
-      - 'appcast.xml'
   push:
-    branches:
-       - main
-       - dev
-       - android-fix-action-bug
-       - new-design-v2 
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.vscode/'
-      - 'appcast.xml'
+    branches: [main, "phase-*"]
+  pull_request:
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  run:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    permissions: write-all
-    if: "${{!contains(github.event.head_commit.message, 'release: version')}}"
-    with:
-      upload-artifact: ${{ github.event_name == 'push' }}
-      
+  check:
+    name: analyze + test
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secrets scan (tracked files only)
+        run: bash tools/ci/secrets_scan.sh
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.5"
+          channel: stable
+          cache: true
+
+      - name: Prepare (pub get, codegen, translations)
+        run: make get gen translate
+
+      - name: Analyze (errors are fatal repo-wide)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Strict analyze (Belderchin-owned code, zero tolerance)
+        run: bash tools/ci/strict_analyze.sh
+
+      - name: Test
+        run: flutter test

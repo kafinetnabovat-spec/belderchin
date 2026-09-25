@@ -68,3 +68,17 @@ app.*.map.json
 # Windows Self-Signed for msix
 windows/sign.pfx
 windows/sign.cer
+# Belderchin: signing material and secrets must never be committed
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+key.properties
+.env
+.env.*
+/secrets/
+/out/
+# Ed25519 source-list signing keys (tools/sources/belderchin_sources.py gen-key)
+*.private.hex
+/belderchin-secrets/

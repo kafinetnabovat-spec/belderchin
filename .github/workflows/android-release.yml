@@ -1,0 +1,117 @@
+name: Android release
+
+# Builds signed release APKs. Signing material comes ONLY from GitHub Secrets:
+#   ANDROID_SIGNING_KEY            base64 of the .jks keystore
+#   ANDROID_SIGNING_STORE_PASSWORD
+#   ANDROID_SIGNING_KEY_PASSWORD
+#   ANDROID_SIGNING_KEY_ALIAS
+# Without them the build is debug-signed and clearly labelled "-DEBUGSIGNED".
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Create a GitHub release from this run"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secrets scan
+        run: bash tools/ci/secrets_scan.sh
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.5"
+          channel: stable
+          cache: true
+
+      - name: Prepare (pub get, codegen, translations, pinned core)
+        run: make prepare
+
+      - name: Configure signing
+        id: signing
+        env:
+          ANDROID_SIGNING_KEY: ${{ secrets.ANDROID_SIGNING_KEY }}
+          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}
+          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}
+          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_SIGNING_KEY}" ]; then
+            echo "::warning::ANDROID_SIGNING_KEY is not set - APKs will be DEBUG signed"
+            echo "suffix=-DEBUGSIGNED" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          KEYSTORE="$RUNNER_TEMP/release.jks"
+          echo "$ANDROID_SIGNING_KEY" | base64 -d > "$KEYSTORE"
+          {
+            echo "storeFile=$KEYSTORE"
+            echo "storePassword=$ANDROID_SIGNING_STORE_PASSWORD"
+            echo "keyPassword=$ANDROID_SIGNING_KEY_PASSWORD"
+            echo "keyAlias=$ANDROID_SIGNING_KEY_ALIAS"
+          } > android/key.properties
+          echo "suffix=" >> "$GITHUB_OUTPUT"
+
+      - name: Build APKs
+        run: make android-apk
+
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/key.properties "$RUNNER_TEMP/release.jks"
+
+      - name: Collect artifacts
+        id: collect
+        env:
+          SUFFIX: ${{ steps.signing.outputs.suffix }}
+        run: |
+          set -euo pipefail
+          VERSION="$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then VERSION="${GITHUB_REF_NAME#v}"; fi
+          mkdir -p out
+          for abi in arm64-v8a armeabi-v7a x86_64; do
+            src="build/app/outputs/flutter-apk/app-${abi}-release.apk"
+            [ -f "$src" ] && cp "$src" "out/Belderchin-${VERSION}-${abi}${SUFFIX}.apk"
+          done
+          cp build/app/outputs/flutter-apk/app-release.apk "out/Belderchin-${VERSION}-universal${SUFFIX}.apk"
+          (cd out && sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verify APK signatures
+        run: |
+          set -euo pipefail
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner"
+          for apk in out/*.apk; do
+            "$APKSIGNER" verify --print-certs "$apk" | head -3
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Belderchin-${{ steps.collect.outputs.version }}-apks
+          path: out/*
+          if-no-files-found: error
+
+      - name: GitHub release
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.publish_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}', steps.collect.outputs.version) }}
+          name: بلدرچین ${{ steps.collect.outputs.version }}
+          generate_release_notes: true
+          files: out/*
