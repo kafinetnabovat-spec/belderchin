@@ -32,10 +32,11 @@ if [ -f .git/shallow ]; then
   git fetch --unshallow upstream
 fi
 
-AUTH="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
+export GIT_TERMINAL_PROMPT=0 GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 | tr -d '\n')"
 echo "==> pushing main to $TARGET"
-git -c "http.https://github.com/.extraheader=$AUTH" push $FORCE origin main
-git -c "http.https://github.com/.extraheader=$AUTH" push origin --tags || true
+git push $FORCE origin main
+# Tags are deliberately NOT pushed: upstream tags would trigger release builds.
 
 if [ "$RESHALLOW" = 1 ]; then
   echo "==> re-shallowing local clone"
