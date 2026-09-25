@@ -672,6 +672,17 @@
       "needUpdate": "Please update the app for best results.",
       "vpnPermission": "VPN permission is required to connect."
     },
+    "transparency": {
+      "title": "Before you start",
+      "intro": "Belderchin is a free, non-commercial tool. Please read these few lines once.",
+      "p1": "Your traffic is routed through Cloudflare (WARP and Workers). Like any VPN provider, the infrastructure provider can see connection metadata such as your IP address, timing and volume.",
+      "p2": "There are no accounts, no analytics, no ads and no telemetry. Nothing about you or your device is sent to us; there is no \"our server\" at all.",
+      "p3": "Logs stay on your device only and are masked before you copy them from the troubleshooting page.",
+      "p4": "The app is open source, based on Hiddify, and every release is built publicly by GitHub Actions.",
+      "sourceCode": "Source code",
+      "privacy": "Privacy notes",
+      "accept": "I understand, continue"
+    },
     "troubleshoot": {
       "title": "Troubleshooting",
       "lastAttempts": "Recent connection attempts",

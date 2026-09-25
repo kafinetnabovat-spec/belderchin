@@ -111,7 +111,13 @@ notifier state machine with fake core/profile repositories).
   (`LogMasker` replaces IPs, hosts, URLs, UUIDs, e-mails, key/values and long blobs; nothing is uploaded).
 - Tests: `test/features/troubleshoot` (masker).
 
+## Phase 7 - first-run transparency screen (2026-09-25)
+
+- `lib/features/onboarding/widget/transparency_page.dart` replaces the upstream intro at `/intro`:
+  plain Persian statements about what the infrastructure provider can see, the absence of accounts,
+  analytics and servers of ours, local-only logs, and links to the source code and the privacy notes.
+  Accepting it sets region `ir`, locale `fa` and `introCompleted`.
+
 ## Planned (later phases)
 - Phase 5: WARP registration + lightweight endpoint/port scanner.
-- Phase 7: first-run transparency screen.
 - Phase 8: release workflow run, APK link, Persian test checklist.
