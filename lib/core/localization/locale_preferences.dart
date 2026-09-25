@@ -10,7 +10,8 @@ class LocalePreferences extends _$LocalePreferences with AppLogger {
   @override
   AppLocale build() {
     final persisted = ref.watch(sharedPreferencesProvider).requireValue.getString("locale");
-    if (persisted == null) return AppLocaleUtils.findDeviceLocale();
+    // Belderchin: Persian by default; the device locale is not consulted.
+    if (persisted == null) return AppLocale.fa;
     // keep backward compatibility with chinese after changing zh to zh_CN
     if (persisted == "zh") {
       return AppLocale.zhCn;

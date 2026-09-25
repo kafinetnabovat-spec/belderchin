@@ -76,8 +76,32 @@ New code (no upstream files changed except `pubspec.yaml`):
 - `cryptography ^2.7.0` added to `pubspec.yaml`; `.gitignore` and the secrets scan reject
   `*.private.hex` signing keys.
 
+## Phase 4 - one-button home and auto connection chain (2026-09-25)
+
+New code:
+- `lib/features/auto_connect/` - `ConnectionCandidate` (built from the signed list: WARP ->
+  Workers by weight -> backup, sticky last-known-good route first), `HealthChecker` (N-of-M
+  `generate_204`-style probes sent **through the local mixed proxy**, no redirects), 
+  `CandidateProfileBinder` (maps candidates onto upstream profile storage; refetches a
+  subscription at most every 6 h), in-memory `AttemptLog`, and `AutoConnectNotifier`
+  (state machine idle -> preparing -> trying -> connected | failed, cancellation, VPN-permission
+  short-circuit, bounded 6 s list refresh before the chain).
+- `lib/features/home/widget/belderchin_home_page.dart` - the new default screen: one large
+  button and a Persian status line; the upstream screens stay reachable from an "advanced" button.
+- Router: new top-level routes `/` (Belderchin home) and `/troubleshoot`; `initialLocation` `/`.
+  Deep links (`?url=`) still open the upstream add-profile sheet.
+- Default locale is Persian (`fa`, Shabnam font, RTL) instead of the device locale.
+- Connection-button theme colors changed to the Belderchin palette.
+
+Removed:
+- QR-code scanner screen and `mobile_scanner` dependency; `CAMERA` permission and the camera
+  `uses-feature` entries in `AndroidManifest.xml`.
+
+Tests: `test/features/auto_connect` (candidate ordering, health checker, backoff schedule,
+notifier state machine with fake core/profile repositories).
+
 ## Planned (later phases)
-- Phase 4: one-button home screen, auto connection chain with in-tunnel health checks, Persian/RTL UX.
 - Phase 5: WARP registration + lightweight endpoint/port scanner.
-- Phase 6: stability (network change handling, reconnect with backoff, battery guidance, local troubleshooting page).
+- Phase 6: stability (reconnect with backoff, battery guidance, local troubleshooting page).
 - Phase 7: first-run transparency screen.
+- Phase 8: release workflow run, APK link, Persian test checklist.

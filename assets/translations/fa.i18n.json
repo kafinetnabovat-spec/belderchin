@@ -641,5 +641,33 @@
       "missingLicense": "لایسنس Warp",
       "missingLicenseMsg": "پروفایل انتخاب‌شده از ویژگی WARP استفاده می‌کند؛ برای استفاده از این قابلیت، باید با لایسنس WARP موافقت شود."
     }
+  },
+  "belderchin": {
+    "home": {
+      "connect": "اتصال",
+      "disconnect": "قطع اتصال",
+      "cancel": "لغو",
+      "advanced": "پیشرفته",
+      "troubleshoot": "عیب‌یابی",
+      "sourcesVersion": "فهرست مسیرها نسخهٔ $version",
+      "layerWarp": "WARP",
+      "layerWorkers": "Worker",
+      "layerBackup": "پشتیبان"
+    },
+    "status": {
+      "idle": "برای اتصال ضربه بزنید",
+      "preparing": "در حال دریافت فهرست مسیرها…",
+      "trying": "در حال اتصال از مسیر $name ($index از $total)…",
+      "checking": "در حال بررسی سلامت اتصال…",
+      "connected": "متصل شدید؛ مسیر: $name",
+      "failed": "هیچ مسیری کار نکرد. لطفاً چند دقیقهٔ دیگر دوباره تلاش کنید.",
+      "noSources": "فهرست مسیرها خالی است.",
+      "cancelled": "اتصال لغو شد",
+      "disconnecting": "در حال قطع اتصال…",
+      "reconnecting": "ارتباط قطع شد؛ تلاش دوباره تا $seconds ثانیهٔ دیگر…",
+      "stale": "فهرست مسیرها قدیمی است؛ با همین فهرست تلاش می‌کنیم.",
+      "needUpdate": "برای بهترین کارکرد، برنامه را به‌روز کنید.",
+      "vpnPermission": "برای اتصال باید اجازهٔ VPN را بدهید."
+    }
   }
 }

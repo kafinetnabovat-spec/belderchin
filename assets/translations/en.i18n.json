@@ -644,5 +644,33 @@
       "missingLicense": "Warp license",
       "missingLicenseMsg": "The selected profile uses the WARP feature; to use this feature, the WARP license must be agreed to."
     }
+  },
+  "belderchin": {
+    "home": {
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "cancel": "Cancel",
+      "advanced": "Advanced",
+      "troubleshoot": "Troubleshoot",
+      "sourcesVersion": "Route list v$version",
+      "layerWarp": "WARP",
+      "layerWorkers": "Worker",
+      "layerBackup": "Backup"
+    },
+    "status": {
+      "idle": "Tap to connect",
+      "preparing": "Fetching the route list…",
+      "trying": "Connecting via $name ($index of $total)…",
+      "checking": "Checking the connection…",
+      "connected": "Connected via $name",
+      "failed": "No route worked. Please try again in a few minutes.",
+      "noSources": "The route list is empty.",
+      "cancelled": "Connection cancelled",
+      "disconnecting": "Disconnecting…",
+      "reconnecting": "Connection dropped; retrying in $seconds s…",
+      "stale": "The route list is out of date; trying anyway.",
+      "needUpdate": "Please update the app for best results.",
+      "vpnPermission": "VPN permission is required to connect."
+    }
   }
 }

@@ -7,6 +7,7 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/router/go_router/helper/custom_transition.dart';
 import 'package:hiddify/core/router/go_router/refresh_listenable.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
+import 'package:hiddify/features/home/widget/belderchin_home_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
@@ -38,7 +39,10 @@ final branchesScope = <String, FocusScopeNode>{
 
 // when the routing config is not yet initialized, this config is used
 final loadingConfig = RoutingConfig(
-  routes: <RouteBase>[GoRoute(path: '/home', builder: (context, state) => const Material())],
+  routes: <RouteBase>[
+    GoRoute(path: '/', builder: (context, state) => const Material()),
+    GoRoute(path: '/home', builder: (context, state) => const Material()),
+  ],
 );
 
 String getNameOfBranch(bool isMobileBreakpoint, bool showProfilesAction, int index) => isMobileBreakpoint
@@ -79,11 +83,14 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
         if (!introCompleted) {
           return url != null ? '/intro?url=$url' : '/intro';
         } else if (isIntro) {
-          if (url != null)
+          if (url != null) {
             WidgetsBinding.instance.addPostFrameCallback(
               (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url),
             );
-          return '/home';
+            return '/home';
+          }
+          // Belderchin: after the transparency screen land on the one-button home.
+          return '/';
         } else if (url != null) {
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url),
@@ -93,6 +100,12 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
         return null;
       },
       routes: <RouteBase>[
+        // Belderchin: the simple home lives outside the legacy shell (no nav bar).
+        GoRoute(
+          name: 'belderchinHome',
+          path: '/',
+          builder: (_, _) => const BelderchinHomePage(),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (_, _, navigationShell) => MyAdaptiveLayout(
             navigationShell: navigationShell,
