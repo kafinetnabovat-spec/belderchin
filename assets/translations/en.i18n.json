@@ -702,7 +702,8 @@
       "alwaysOn": "Always-on VPN",
       "alwaysOnBody": "In Android Settings → Network → VPN → Belderchin you can enable Always-on VPN so the tunnel restarts after reboot.",
       "refreshSources": "Refresh route list",
-      "resetState": "Forget remembered route"
+      "resetState": "Forget remembered route",
+      "resetWarp": "Forget WARP registration"
     }
   }
 }

@@ -142,5 +142,13 @@ New code (`lib/features/warp/`), all pure Dart on top of `package:cryptography`:
   parsing, target sampling, scanner against a local fake responder, store TTL, profile shape) and
   scanned-path cases in the notifier tests. Tests never touch the network.
 
-## Planned (later phases)
-- Phase 8: release workflow run, APK link, Persian test checklist.
+## Phase 8 - release preparation
+- `docs/TESTING.fa.md` - Persian on-device test checklist (install, first run, connect/disconnect,
+  network change, always-on, troubleshooting page, privacy check with a packet monitor).
+- `tools/ci/push_to_github.sh` - pushes the full history (upstream + Belderchin commits) to the public
+  repository; the token is read from the environment and passed as a one-off HTTP header, never stored.
+- Troubleshooting page: "Forget WARP registration" button (drops the cached identity and endpoints so
+  the next connection registers and scans again).
+- Releases are produced only by `.github/workflows/android-release.yml` (tag `v*.*.*` or manual run).
+  Without the `ANDROID_SIGNING_*` secrets the workflow still builds, but the APKs are debug-signed and
+  carry a `-DEBUGSIGNED` suffix.

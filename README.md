@@ -31,7 +31,7 @@
 - لاگ‌ها فقط روی دستگاه شما می‌مانند.
 - ارائه‌دهندهٔ زیرساخت (Cloudflare) طبیعتاً می‌تواند فراداده‌های اتصال شما را ببیند؛ این موضوع در اولین اجرا شفاف به شما گفته می‌شود.
 
-جزئیات: [docs/PRIVACY.fa.md](docs/PRIVACY.fa.md) — فهرست منابع اتصال چگونه امضا و تأیید می‌شود: [docs/SOURCES.fa.md](docs/SOURCES.fa.md)
+جزئیات: [docs/PRIVACY.fa.md](docs/PRIVACY.fa.md) — فهرست منابع اتصال چگونه امضا و تأیید می‌شود: [docs/SOURCES.fa.md](docs/SOURCES.fa.md) — چک‌لیست آزمایش روی گوشی: [docs/TESTING.fa.md](docs/TESTING.fa.md)
 
 ## دانلود و نصب
 

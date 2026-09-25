@@ -11,6 +11,7 @@ import 'package:hiddify/features/log/data/log_data_providers.dart';
 import 'package:hiddify/features/settings/notifier/battery_optimization/battery_optimizations_notifier.dart';
 import 'package:hiddify/features/sources/notifier/source_list_notifier.dart';
 import 'package:hiddify/features/troubleshoot/data/log_masker.dart';
+import 'package:hiddify/features/warp/notifier/warp_layer.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -97,6 +98,11 @@ class TroubleshootPage extends ConsumerWidget {
                             onPressed: () => ref.read(autoConnectProvider.notifier).forgetPreferred(),
                             icon: const Icon(Icons.restart_alt),
                             label: Text(t.belderchin.troubleshoot.resetState),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () => ref.read(warpLayerProvider).reset(),
+                            icon: const Icon(Icons.key_off_outlined),
+                            label: Text(t.belderchin.troubleshoot.resetWarp),
                           ),
                         ],
                       ),
