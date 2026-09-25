@@ -16,6 +16,7 @@ import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/sources/model/source_list.dart';
 import 'package:hiddify/features/sources/notifier/source_list_notifier.dart';
+import 'package:hiddify/features/warp/notifier/warp_layer.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -134,9 +135,23 @@ class AutoConnectNotifier extends Notifier<AutoConnectState> with AppLogger {
     if (session != _session) return;
     listState = ref.read(sourceListProvider).valueOrNull ?? listState;
 
+    // 2. Make sure nothing is running: the WARP scan and the health probes
+    //    must see the real network, not a previous tunnel.
+    await _stopCore();
+    if (session != _session) return;
+
     final prefs = await ref.read(sharedPreferencesProvider.future);
     final preferred = prefs.getString(lastGoodKey);
-    var candidates = ConnectionCandidate.fromSourceList(listState.list, preferredId: preferred);
+    List<ConnectionCandidate>? warpCandidates;
+    if (listState.list.warp.enabled) {
+      warpCandidates = await ref.read(warpLayerProvider).candidates(listState.list.warp);
+      if (session != _session) return;
+    }
+    var candidates = ConnectionCandidate.fromSourceList(
+      listState.list,
+      preferredId: preferred,
+      warpCandidates: warpCandidates,
+    );
     if (candidates.length > maxCandidates) candidates = candidates.sublist(0, maxCandidates);
     if (candidates.isEmpty) {
       state = const AutoConnectFailed(reason: FailureReason.noCandidates);
@@ -147,14 +162,17 @@ class AutoConnectNotifier extends Notifier<AutoConnectState> with AppLogger {
     final binder = await ref.read(candidateProfileBinderProvider.future);
     final checker = HealthChecker(mixedPort: ref.read(ConfigOptions.mixedPort), probe: ref.read(healthProbeProvider));
 
-    // 2. Make sure nothing is running before the first attempt.
-    await _stopCore();
-    if (session != _session) return;
-
     var tried = 0;
+    var scannedWarpFailures = 0;
+    final scannedWarpTotal = candidates.where((c) => c.kind == CandidateKind.warpScanned).length;
     for (var i = 0; i < candidates.length; i++) {
       final candidate = candidates[i];
       if (session != _session) return;
+      if (i > 0 && candidates[i - 1].kind == CandidateKind.warpScanned) {
+        // Reaching this point means the previous scanned endpoint failed.
+        scannedWarpFailures++;
+        if (scannedWarpFailures == scannedWarpTotal) unawaited(ref.read(warpLayerProvider).invalidateEndpoints());
+      }
       tried++;
       state = AutoConnectTrying(candidate: candidate, index: i + 1, total: candidates.length, stage: TryStage.binding);
       final startedAt = DateTime.now();

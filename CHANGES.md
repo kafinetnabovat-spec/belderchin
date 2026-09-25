@@ -118,6 +118,29 @@ notifier state machine with fake core/profile repositories).
   analytics and servers of ours, local-only logs, and links to the source code and the privacy notes.
   Accepting it sets region `ir`, locale `fa` and `introCompleted`.
 
+## Phase 5 - own WARP registration and endpoint scanner (2026-09-25)
+
+New code (`lib/features/warp/`), all pure Dart on top of `package:cryptography`:
+- `data/warp_registration.dart` - registers a device with Cloudflare's public client API
+  (`POST /v0a2158/reg` with a fresh X25519 public key, then `PATCH /reg/{id}` `warp_enabled=true`,
+  which is required before the endpoints answer). Done once per device; the result is cached locally.
+- `data/wireguard_handshake.dart` - builds a real WireGuard (Noise_IKpsk2) handshake initiation and
+  recognises the response / cookie reply. Verified byte-for-byte against an independent Python
+  reference and against live WARP endpoints. (HMAC-BLAKE2s is implemented by hand because
+  `Hmac(Blake2s())` of the package is not RFC 2104 compliant.)
+- `data/warp_endpoint_scanner.dart` - samples IPv4 addresses from the signed list's `warp.endpoints`
+  ranges and `warp.ports`, sends initiations from one UDP socket with concurrency 8 and a 1.5 s
+  timeout, stops after 4 responders, and orders by RTT. Typical run: 40 targets in ~1.5 s.
+- `data/warp_store.dart` - local cache of the registration and of the scan result (12 h TTL).
+- `data/warp_profile_builder.dart` - sing-box `endpoints[].type=wireguard` profile for one endpoint
+  (format verified with hiddify-core v4.1.0: `warp=on` through the tunnel).
+- `notifier/warp_layer.dart` - expands the WARP layer into candidates: best two scanned endpoints,
+  then the core's built-in `warp://` endpoint as fallback. Scans only when no fresh cache exists;
+  the cache is dropped when every scanned endpoint failed a chain, so the next attempt rescans.
+- `tools/warp/handshake_probe.dart` - maintainer tool to test registration + scan from a PC.
+- Tests: `test/features/warp` (handshake vector, TAI64N, response parsing, registration reply
+  parsing, target sampling, scanner against a local fake responder, store TTL, profile shape) and
+  scanned-path cases in the notifier tests. Tests never touch the network.
+
 ## Planned (later phases)
-- Phase 5: WARP registration + lightweight endpoint/port scanner.
 - Phase 8: release workflow run, APK link, Persian test checklist.

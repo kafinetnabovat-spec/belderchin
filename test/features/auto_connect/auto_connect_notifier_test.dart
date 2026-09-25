@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -22,6 +23,9 @@ import 'package:hiddify/features/profile/model/profile_failure.dart';
 import 'package:hiddify/features/profile/model/profile_sort_enum.dart';
 import 'package:hiddify/features/sources/model/source_list.dart';
 import 'package:hiddify/features/sources/notifier/source_list_notifier.dart';
+import 'package:hiddify/features/warp/data/warp_endpoint_scanner.dart';
+import 'package:hiddify/features/warp/model/warp_identity.dart';
+import 'package:hiddify/features/warp/notifier/warp_layer.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:rxdart/rxdart.dart';
@@ -212,14 +216,32 @@ void main() {
     profiles = FakeProfileRepository();
   });
 
+  final fakeIdentity = WarpIdentity(
+    privateKey: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+    publicKey: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+    peerPublicKey: 'bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=',
+    reserved: const [1, 2, 3],
+    addressV4: '172.16.0.2',
+    addressV6: '2606:4700:110::1',
+    endpointHost: 'engage.cloudflareclient.com',
+    createdAt: DateTime.utc(2026, 9, 25),
+  );
+
   Future<ProviderContainer> makeContainer({
     required SourceListState list,
     required Set<String> healthyMarkers,
     double jitter = 0,
+    List<WarpScanResult> scanned = const [],
+    bool registrationFails = false,
   }) async {
     sources = FakeSourceListNotifier(list);
     final container = ProviderContainer(
       overrides: [
+        warpRegistrationProvider.overrideWithValue(() async {
+          if (registrationFails) throw const SocketException('offline');
+          return fakeIdentity;
+        }),
+        warpScannerProvider.overrideWithValue((identity, hints) async => scanned),
         sharedPreferencesProvider.overrideWith((ref) => SharedPreferences.getInstance()),
         connectionRepositoryProvider.overrideWithValue(connection),
         connectionNotifierProvider.overrideWith(FakeConnectionNotifier.new),
@@ -367,6 +389,50 @@ void main() {
       expect(state, isA<AutoConnectConnected>());
       expect((state as AutoConnectConnected).candidate.id, 'a');
       expect(connection.started, isEmpty);
+    });
+
+    test('tries scanned WARP endpoints before the built-in one and rebinds their profile', () async {
+      final container = await makeContainer(
+        list: _sources(),
+        healthyMarkers: {'belderchin:warp:162.159.192.1:2408'},
+        scanned: [
+          const WarpScanResult(WarpEndpoint('162.159.192.9', 500), Duration(milliseconds: 80)),
+          const WarpScanResult(WarpEndpoint('162.159.192.1', 2408), Duration(milliseconds: 90)),
+        ],
+      );
+      await container.read(autoConnectProvider.notifier).connect();
+      final state = container.read(autoConnectProvider) as AutoConnectConnected;
+      expect(state.candidate.id, 'warp:162.159.192.1:2408');
+      expect(connection.started, hasLength(2), reason: 'first scanned endpoint failed, second succeeded');
+      final profile = profiles.profiles.singleWhere((p) => p.name == 'belderchin:warp:162.159.192.1:2408');
+      expect(profile, isA<LocalProfileEntity>());
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('warp.identity'), isNotNull, reason: 'registration cached');
+      expect(prefs.getString('warp.endpoints'), contains('162.159.192.9'));
+    });
+
+    test('falls back to the built-in WARP endpoint when registration is unavailable', () async {
+      final container = await makeContainer(
+        list: _sources(),
+        healthyMarkers: {'belderchin:warp'},
+        registrationFails: true,
+      );
+      await container.read(autoConnectProvider.notifier).connect();
+      expect((container.read(autoConnectProvider) as AutoConnectConnected).candidate.id, 'warp');
+      expect(connection.started, hasLength(1));
+    });
+
+    test('drops the endpoint cache after every scanned endpoint failed', () async {
+      final container = await makeContainer(
+        list: _sources(workers: [_worker('a', 1)]),
+        healthyMarkers: {'belderchin:a'},
+        scanned: [const WarpScanResult(WarpEndpoint('162.159.192.9', 500), Duration(milliseconds: 80))],
+      );
+      await container.read(autoConnectProvider.notifier).connect();
+      expect((container.read(autoConnectProvider) as AutoConnectConnected).candidate.id, 'a');
+      await Future<void>.delayed(Duration.zero);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('warp.endpoints'), isNull);
     });
 
     test('does not reconnect after a user-initiated disconnect', () async {

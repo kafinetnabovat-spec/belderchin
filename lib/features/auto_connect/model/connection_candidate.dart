@@ -10,6 +10,10 @@ enum CandidateKind {
   /// Built-in WARP endpoint of the core (`warp://` share link, self-registering).
   warpBuiltIn,
 
+  /// WireGuard profile built from our own WARP registration and a scanned
+  /// endpoint; its content changes between chains, so it is always re-bound.
+  warpScanned,
+
   /// Remote subscription URL (Cloudflare Workers or backup subscription).
   remoteSubscription,
 
@@ -57,9 +61,16 @@ class ConnectionCandidate {
   /// then Workers, then backup. Inside a layer higher `weight` comes first and
   /// ties keep document order. If [preferredId] is given and present, that
   /// candidate is moved to the front (sticky last-known-good route).
-  static List<ConnectionCandidate> fromSourceList(SourceList list, {String? preferredId}) {
+  ///
+  /// [warpCandidates] replaces the single built-in WARP entry when the WARP
+  /// layer has been expanded (scanned endpoints + built-in fallback).
+  static List<ConnectionCandidate> fromSourceList(
+    SourceList list, {
+    String? preferredId,
+    List<ConnectionCandidate>? warpCandidates,
+  }) {
     final out = <ConnectionCandidate>[];
-    if (list.warp.enabled) out.add(warpBuiltIn);
+    if (list.warp.enabled) out.addAll(warpCandidates ?? const [warpBuiltIn]);
     out.addAll(_layer(list.workers, CandidateLayer.workers));
     out.addAll(_layer(list.backup, CandidateLayer.backup));
     if (preferredId != null) {

@@ -42,6 +42,16 @@ class CandidateProfileBinder {
           return Left(refreshed.getLeft().toNullable()!);
         }
         return _idOf(await find(candidate));
+      case CandidateKind.warpScanned:
+        // Content depends on the scanned endpoint: replace whatever is stored.
+        if (existing != null) await _profiles.deleteById(existing.id, existing.active).run();
+        final content = candidate.content;
+        if (content == null || content.trim().isEmpty) {
+          return const Left(ProfileFailure.invalidConfig('empty candidate content'));
+        }
+        final added = await _profiles.addLocal(content, userOverride: UserOverride(name: markerFor(candidate))).run();
+        if (added.isLeft()) return Left(added.getLeft().toNullable()!);
+        return _idOf(await find(candidate));
       case CandidateKind.inlineConfig:
       case CandidateKind.warpBuiltIn:
         if (existing != null) return Right(existing.id);
