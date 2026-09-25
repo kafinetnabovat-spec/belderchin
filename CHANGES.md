@@ -100,8 +100,18 @@ Removed:
 Tests: `test/features/auto_connect` (candidate ordering, health checker, backoff schedule,
 notifier state machine with fake core/profile repositories).
 
+## Phase 6 - stability and local troubleshooting (2026-09-25)
+
+- Reconnect watchdog inside `AutoConnectNotifier`: when the core stops while the user expects
+  to be connected, the chain is re-run after an exponential backoff (2 s .. 60 s, +/-25 % jitter,
+  at most 6 attempts, never an infinite loop). A tunnel started by Android always-on VPN or the
+  boot receiver is adopted so the button shows the real state.
+- `lib/features/troubleshoot/` - local-only page: recent attempts, route-list status and mirror
+  results, battery-optimisation exemption request, always-on VPN guidance, and "copy masked log"
+  (`LogMasker` replaces IPs, hosts, URLs, UUIDs, e-mails, key/values and long blobs; nothing is uploaded).
+- Tests: `test/features/troubleshoot` (masker).
+
 ## Planned (later phases)
 - Phase 5: WARP registration + lightweight endpoint/port scanner.
-- Phase 6: stability (reconnect with backoff, battery guidance, local troubleshooting page).
 - Phase 7: first-run transparency screen.
 - Phase 8: release workflow run, APK link, Persian test checklist.

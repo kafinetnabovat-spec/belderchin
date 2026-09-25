@@ -23,6 +23,7 @@ import 'package:hiddify/features/settings/overview/sections/route_options_page.d
 import 'package:hiddify/features/settings/overview/sections/tls_tricks_page.dart';
 import 'package:hiddify/features/settings/overview/sections/warp_options_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hiddify/features/troubleshoot/widget/troubleshoot_page.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -105,6 +106,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           name: 'belderchinHome',
           path: '/',
           builder: (_, _) => const BelderchinHomePage(),
+        ),
+        GoRoute(
+          name: 'troubleshoot',
+          path: '/troubleshoot',
+          pageBuilder: (_, state) => customTransition(TransitionType.slide, state.pageKey, const TroubleshootPage()),
         ),
         StatefulShellRoute.indexedStack(
           builder: (_, _, navigationShell) => MyAdaptiveLayout(

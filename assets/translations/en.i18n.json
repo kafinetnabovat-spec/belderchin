@@ -671,6 +671,27 @@
       "stale": "The route list is out of date; trying anyway.",
       "needUpdate": "Please update the app for best results.",
       "vpnPermission": "VPN permission is required to connect."
+    },
+    "troubleshoot": {
+      "title": "Troubleshooting",
+      "lastAttempts": "Recent connection attempts",
+      "noAttempts": "No attempts yet.",
+      "sources": "Route list",
+      "sourcesOrigin": "Source: $origin",
+      "sourcesFetched": "Last fetched: $time",
+      "sourcesNever": "Never fetched",
+      "mirrors": "Mirror results",
+      "copyLog": "Copy masked log",
+      "copied": "Copied to clipboard",
+      "logEmpty": "Log is empty.",
+      "battery": "Battery optimisation",
+      "batteryBody": "Some phones kill background VPNs. Exempt Belderchin from battery optimisation to keep the connection alive.",
+      "batteryOk": "Belderchin is exempt from battery optimisation.",
+      "batteryFix": "Open battery settings",
+      "alwaysOn": "Always-on VPN",
+      "alwaysOnBody": "In Android Settings → Network → VPN → Belderchin you can enable Always-on VPN so the tunnel restarts after reboot.",
+      "refreshSources": "Refresh route list",
+      "resetState": "Forget remembered route"
     }
   }
 }
